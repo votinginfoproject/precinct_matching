@@ -27,7 +27,7 @@ print "_________________________________"
 #TODO: make the base string of state_path flexible to different configs
 #TODO: find a better source of locality type
 
-locality_name = "testing county"
+locality_name = "Lake County"
 locality_type = "county"
 state_folder = "california primary"
 
@@ -89,7 +89,7 @@ print "It's done!"
 
 print "Now making election_administration.txt. And..."
 
-finalize.make_election_admins(state_path, final_path)
+finalize.make_election_admins(state_name, locality_name, state_path, final_path)
 
 print "Glory is ours!"
 
@@ -101,3 +101,5 @@ print "Now making locality.txt. And..."
 finalize.make_locality(locality_name, locality_type, final_path)
 
 print "Alakazam!"
+
+print "We're solid, bro!"

@@ -102,17 +102,17 @@ def make_locality(locality_name, locality_type, final_path):
 
 
 
-def make_election_admins(start_path, final_path):
+def make_election_admins(state_name, locality_name, start_path, final_path):
 	"constructs both a state and a local election administrator."
 	"this draws on a templated statewide election administrator, and a local election"
 	"administrator drawn from a combination of the spreadsheets put together by dogcatcher"
 	"and outside research."
-	
-	#this needs to:
-	#1. have headers
-	#4. look in a list of other data for *that* local data.
-	#5. look in a list of other data for those URLs.
 
+	#TODO:  create the relevant election officials
+	#TODO: draw from an external URLs file
+
+	import re
+	
 	content_type = "election_administration.txt"
 
 	election_admin_end_loc = final_path + content_type
@@ -126,8 +126,59 @@ where_do_i_vote_url,what_is_on_my_ballot_url,rules_url,voter_services,hours,id"
 
 	state_election_admin_header = copy(start_path, content_type)
 
-	address = ",".join([office_name, street_1, street_2, "", city, state, street_zip])
-	address = ",".join([office_name, mail_street_1, mail_street_2, "", mail_city, mail_state, mail_street_zip])
+	
+	#TODO: HERE"S WHERE LOCAL ADMINS HAPPEN
+	
+	local_admin_loc = start_path + state_name + " election admins.txt"
+
+	admin = open(local_admin_loc, "r").read()
+
+	locality_name_short = " ".join(locality_name.split()[0:len(locality_name.split())-1])
+
+	clerk_re = re.compile("\n.+?" + locality_name_short.title() + ".+?\n")
+
+	office_name_re = re.compile("([A-Za-z ]+)[,-].*?\d|.*?\d.*?[,-]([A-Za-z ]+)")
+
+	clerk = clerk_re.findall(admin)[0].strip("\n").split("\t")
+
+	name = clerk[0]
+	hours = clerk[33]
+
+
+	street_1 = clerk[5]
+	city = clerk [6]
+	state = clerk[7]
+	street_zip = clerk[8]
+
+
+	if office_name_re.findall(street_1):
+		if office_name_re.findall(street_1)[0][0]:
+			office_name = office_name_re.findall(street_1)[0][0].strip()
+		elif office_name_re.findall(street_1)[0][1]:
+			office_name = office_name_re.findall(street_1)[0][1].strip()
+		
+		street_1 = street_1.replace(office_name,"").strip(", ")
+	else:
+		office_name = ""
+
+	if clerk[9]:
+		mail_street_1 = clerk[9]
+		mail_city = clerk[10]
+		mail_state = clerk[11]
+		mail_zip = clerk[12]
+	else:
+		mail_street_1 = ""
+		mail_city = ""
+		mail_state = ""
+		mail_zip = ""
+
+	elections_url = clerk[32]
+	
+	address = ",".join([office_name, street_1, "", "", city, state, street_zip])
+	mailing_address = ",".join(["", mail_street_1, "", "", mail_city, mail_state, mail_zip])
+	url_list = ",".join([elections_url, "", "", "", "", "", ""])
+
+	print mailing_address
 
 	local_election_admin = ",".join([name, "", "", address, mailing_address, url_list, "", hours, "4"])
 
@@ -136,9 +187,6 @@ where_do_i_vote_url,what_is_on_my_ballot_url,rules_url,voter_services,hours,id"
 	san_check(election_admin_full, header, content_type)
 
 	paste(election_admin_end_loc, election_admin_full)
-
-
-
 
 
 def san_check(data, header, filename):
