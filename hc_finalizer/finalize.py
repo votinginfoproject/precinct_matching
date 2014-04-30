@@ -1,4 +1,9 @@
 #this is the main compendium of individual functions that support hc_finalizer.py (currently california_hc_finalizer.py)
+#state id = 1
+#election_administration id = 2 (for the state office), 3 (for the local office)
+#locality id = 4
+#source id = 10000867380 (867380 is VIP in dec)
+#election id = 100000564950 (564950 is VIP in hex)
 
 
 def copy(start_path, content_type):
@@ -22,8 +27,6 @@ def copy_paste(start_path, final_path, header, content_type):
 	"takes a standard file housed in the state-level folder, and makes a new copy housed in the final_data folder"
 	"after performing a few validations"
 
-	import sys
-
 	carbon_copy = copy(start_path,content_type)
 
 	san_check(carbon_copy,header,content_type)
@@ -41,8 +44,8 @@ def make_state(final_path, state_name, header):
 	name = state_name
 	#Since we will only ever have one state-level election administrator associated with 
 	#a given hand-matched feed, we can match election_administration_id based on a fixed ID.
-	election_administration_id = "1"
-	state_id = "2"
+	election_administration_id = "2"
+	state_id = "1"
 
 	state_data = ",".join([name,election_administration_id,state_id])
 	state_full = header + "\n" + state_data
@@ -72,8 +75,31 @@ def make_source(final_path):
 
 	san_check(source_full, header, "source.txt")
 
-	source = open(source_end_loc, "w+")
-	source.write(source_full)
+	paste(source_end_loc, source_full)
+
+def make_locality(locality_name, locality_type, final_path):
+	"constructs the locality data, linking it to the local election administrator."
+
+	locality_end_loc = final_path + "locality.txt"
+
+	header = "name,state_id,type,election_administration_id,id"
+
+	state_id = "1"
+	election_administration_id = "3"
+	locality_id = "4"
+
+
+
+	locality_data = ",".join([locality_name,state_id,locality_type,election_administration_id,locality_id])
+
+	locality_full = header + "\n" + locality_data
+
+	san_check(locality_full, header, "locality.txt")
+
+	locality = open(locality_end_loc, "w+")
+	locality.write(locality_full)
+
+
 
 
 def make_election_admins(start_path, final_path):
@@ -81,7 +107,39 @@ def make_election_admins(start_path, final_path):
 	"this draws on a templated statewide election administrator, and a local election"
 	"administrator drawn from a combination of the spreadsheets put together by dogcatcher"
 	"and outside research."
-	#todo: actually write this!
+	
+	#this needs to:
+	#1. have headers
+	#4. look in a list of other data for *that* local data.
+	#5. look in a list of other data for those URLs.
+
+	content_type = "election_administration.txt"
+
+	election_admin_end_loc = final_path + content_type
+
+	header = "name,eo_id,ovc_id,physical_address_location_name,\
+physical_address_line1,physical_address_line2,physical_address_line3,physical_address_city,\
+physical_address_state,physical_address_zip,mailing_address_location_name,mailing_address_line1,\
+mailing_address_line2,mailing_address_line3,mailing_address_city,mailing_address_state,\
+mailing_address_zip,elections_url,registration_url,am_i_registered_url,absentee_url,\
+where_do_i_vote_url,what_is_on_my_ballot_url,rules_url,voter_services,hours,id"
+
+	state_election_admin_header = copy(start_path, content_type)
+
+	address = ",".join([office_name, street_1, street_2, "", city, state, street_zip])
+	address = ",".join([office_name, mail_street_1, mail_street_2, "", mail_city, mail_state, mail_street_zip])
+
+	local_election_admin = ",".join([name, "", "", address, mailing_address, url_list, "", hours, "4"])
+
+	election_admin_full = state_election_admin_header + "\n" + local_election_admin
+
+	san_check(election_admin_full, header, content_type)
+
+	paste(election_admin_end_loc, election_admin_full)
+
+
+
+
 
 def san_check(data, header, filename):
 	"these are two basic tests to make sure that the text to be copied is formatted correctly. More can be added."
@@ -93,14 +151,17 @@ def san_check(data, header, filename):
 	testing_data = data.split("\n")
 
 	for line in testing_data[0:len(testing_data)-1]:
-		if line.count(",") != testing_data[testing_data.index(line)+1].count(","):
-			print filename + " seems to have an incorrect number of columns in row " + str(testing_data.index(line)+2) + ". You should fix this."
+		if line.count(",") != testing_data[testing_data.index(line) + 1].count(","):
+			print filename + " seems to have an incorrect number of columns in row " + str(testing_data.index(line) + 2) + ". You should fix this."
+			print "There are " + str(line.count(",") + 1) + " columns in row " + str(testing_data.index(line) + 1) + " and " + str(testing_data[testing_data.index(line) + 1].count(",") + 1) + " columns in row " + str(testing_data.index(line) + 2) + "."
 			print line
-			print testing_data[testing_data.index(line)+1]
+			print testing_data[testing_data.index(line) + 1]
 			sys.exit()
 
 	if testing_data[0] != header:
 		print "It looks like " + filename +  " has the wrong headers. You need to fix this."
 		print "Here's the header:"
 		print testing_data[0]
+		print "Here's what you've said it should be:"
+		print header
 		sys.exit()
