@@ -65,7 +65,7 @@ state_name = state_folder.split()[0].title()
 
 finalize.make_state(final_path, state_name, state_header)
 
-print "Victory!"
+print "-Victory!"
 
 #this is the section of the code that accomplishes #4
 
@@ -75,7 +75,7 @@ election_header = "date,election_type,state_id,statewide,registration_info,absen
 
 finalize.copy_paste(state_path, final_path, election_header, "election.txt")
 
-print "Success!"
+print "-Success!"
 
 #this is the section of the code that accomplishes #5
 
@@ -83,7 +83,7 @@ print "Now making source.txt. And..."
 
 finalize.make_source(final_path)
 
-print "It's done!"
+print "-It's done!"
 
 #this will be the section of the code that accomplishes #6
 
@@ -91,15 +91,22 @@ print "Now making election_administration.txt. And..."
 
 finalize.make_election_admins(state_name, locality_name, state_path, final_path)
 
-print "Glory is ours!"
+print "-Glory is ours!"
 
 #this will be the section of the code that accomplishes #7
+
+print "Now trying to make early_vote_site.txt. And..."
+
+if not os.access(working_path + "early_vote_site.txt", os.F_OK):
+	print "There appears to be no early_vote_site file. If this is in error, please add it and re-run."
+else:
+	finalize.make_ev_sites(working_path, final_path)
+	print "-Great justice!"
+
 #this will be the section of the code that accomplishes #8
 
 print "Now making locality.txt. And..."
 
 finalize.make_locality(locality_name, locality_type, final_path)
 
-print "Alakazam!"
-
-print "We're solid, bro!"
+print "-Alakazam!"

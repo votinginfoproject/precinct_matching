@@ -2,6 +2,7 @@
 #state id = 1
 #election_administration id = 2 (for the state office), 3 (for the local office)
 #locality id = 4
+#ev_ids: 5+
 #source id = 10000867380 (867380 is VIP in dec)
 #election id = 100000564950 (564950 is VIP in hex)
 
@@ -108,7 +109,6 @@ def make_election_admins(state_name, locality_name, start_path, final_path):
 	"administrator drawn from a combination of the spreadsheets put together by dogcatcher"
 	"and outside research."
 
-	#TODO:  create the relevant election officials
 	#TODO: draw from an external URLs file
 
 	import re
@@ -125,9 +125,6 @@ mailing_address_zip,elections_url,registration_url,am_i_registered_url,absentee_
 where_do_i_vote_url,what_is_on_my_ballot_url,rules_url,voter_services,hours,id"
 
 	state_election_admin_header = copy(start_path, content_type)
-
-	
-	#TODO: HERE"S WHERE LOCAL ADMINS HAPPEN
 	
 	local_admin_loc = start_path + state_name + " election admins.txt"
 
@@ -178,8 +175,6 @@ where_do_i_vote_url,what_is_on_my_ballot_url,rules_url,voter_services,hours,id"
 	mailing_address = ",".join(["", mail_street_1, "", "", mail_city, mail_state, mail_zip])
 	url_list = ",".join([elections_url, "", "", "", "", "", ""])
 
-	print mailing_address
-
 	local_election_admin = ",".join([name, "", "", address, mailing_address, url_list, "", hours, "4"])
 
 	election_admin_full = state_election_admin_header + "\n" + local_election_admin
@@ -187,6 +182,67 @@ where_do_i_vote_url,what_is_on_my_ballot_url,rules_url,voter_services,hours,id"
 	san_check(election_admin_full, header, content_type)
 
 	paste(election_admin_end_loc, election_admin_full)
+
+
+
+
+
+
+def make_precincts():
+	"this makes the precincts.txt file."
+
+
+
+def make_polling_locs():
+	"this makes the polling locations.txt file."
+
+
+def make_ev_sites(working_path, final_path):
+	"this makes the early_vote.txt file."
+
+	content_type = "early_vote_site.txt"
+
+	header = "name,address_location_name,address_line1,address_line2,address_line3,address_city,address_state,address_zip,directions,voter_services,start_date,end_date,days_times_open,id"
+
+	copy_paste(working_path, final_path, header, content_type)
+
+	#TODO: validate EV sites on construction of date/time variables
+
+	make_locality_ev(final_path)
+
+
+def make_locality_ev(final_path):
+	"this makes the locality_early_vote_site.txt file. It's called only by make_ev_sites(), and only"
+	"if there are EV sites to be linked to localities at all."
+	"It opens the EV_site file, and then systematically adds the ev_site"
+	"IDs to the file, paired with the locality_id (which is, always and forever, 4)."
+
+	header = "locality_id,early_vote_site_id"
+
+	content_type = "locality_early_vote_site.txt"
+
+	local_ev_end_loc = final_path + content_type
+
+	ev_site_list = copy(final_path,"early_vote_site.txt").split("\n")
+
+	ev_site_list.pop(0)
+
+	locality_ev_site = open(local_ev_end_loc, "w")
+
+	locality_ev_site_full = header
+
+	for ev_site in ev_site_list:
+		ev_site_id = ev_site.split(",").pop()
+		locality_ev_site_full = locality_ev_site_full + "\n4," + ev_site_id
+
+	san_check(locality_ev_site_full, header, "locality_early_vote_site.txt")
+
+	paste(local_ev_end_loc, locality_ev_site_full)
+
+
+
+
+
 
 
 def san_check(data, header, filename):
