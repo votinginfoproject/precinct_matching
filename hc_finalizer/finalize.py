@@ -184,19 +184,6 @@ where_do_i_vote_url,what_is_on_my_ballot_url,rules_url,voter_services,hours,id"
 	paste(election_admin_end_loc, election_admin_full)
 
 
-
-
-
-
-def make_precincts():
-	"this makes the precincts.txt file."
-
-
-
-def make_polling_locs():
-	"this makes the polling locations.txt file."
-
-
 def make_ev_sites(working_path, final_path):
 	"this makes the early_vote.txt file."
 
@@ -239,8 +226,56 @@ def make_locality_ev(final_path):
 
 	paste(local_ev_end_loc, locality_ev_site_full)
 
+def prep_precincts():
+	"this makes the precincts.txt file."
 
 
+
+def prep_polling_locs():
+	"this makes the polling locations.txt file."
+
+
+def prep_street_segments(working_path, final_path):
+
+	import xlrd
+
+	header = "start_house_number,end_house_number,odd_even_both,\
+start_apartment_number,end_apartment_number,non_house_address_house_number,\
+non_house_address_house_number_prefix,non_house_address_house_number_suffix,\
+non_house_address_street_direction,non_house_address_street_name,\
+non_house_address_street_suffix,non_house_address_address_direction,\
+non_house_address_apartment,non_house_address_city,non_house_address_state,\
+non_house_address_zip,precinct_id,precinct_split_id,id"
+
+	content_type = "street_segment_working.xls"
+	final_content_name = "street_segment.txt"
+
+	starting_segment_loc = working_path + content_type
+
+	data = xlrd.open_workbook(starting_segment_loc).sheet_by_index(0)
+
+	#TODO: magic!
+
+	distinct_header = 
+
+	for row in range(1, data.nrows):
+
+
+
+	segment_working = copy(working_path, content_type)
+	segment_working_header = segment_working.partition("\n")[0]
+
+	san_check(segment_working, segment_working_header, content_type)
+ 	
+	
+	#this needs to:
+	#open a street segments file
+	#turn it into text
+	#san check it, to make sure we're using good data to start with
+	#break it down into columns
+	#identify a selection of that file that matches our predicted columns
+	#repackage it into a file we can use
+	#export that file as street_segment.txt
 
 
 

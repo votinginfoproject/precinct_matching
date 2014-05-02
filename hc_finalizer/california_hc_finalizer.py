@@ -3,7 +3,7 @@
 #precinct_polling_location.txt, street_segment.txt, election_administration.txt,
 #locality.txt and state.txt, all in [State]/[Locality]/Final_Data, as well as early_vote_site.txt (if it exists)
 #to do this, we need to:
-#1. clean and translate street_segment.xls, precinct.xls, and polling_location.xls
+#1.1,1.2,1.3. clean and translate street_segment.xls, precinct.xls, and polling_location.xls
 #(This is mostly a straight transfer, with some rows being ommitted.)
 #2. construct precinct_polling_location out of precinct.xls and polling_location.xls
 #3. construct state.txt from (DONE!)
@@ -22,7 +22,7 @@ import sys
 
 print "_________________________________"
 
-#TODO: make locality an inputted variable
+#TODO: make locality_name an inputted variable
 #TODO: make state folder name an inputted variable
 #TODO: make the base string of state_path flexible to different configs
 #TODO: find a better source of locality type
@@ -54,7 +54,18 @@ elif not os.access(final_path, os.F_OK):
 
 print "All the necessary directories appear to be in good working order. Mazel tov! Now, the fun part."
 
-#this will be the section of the code that accomplishes #1
+#this will be the section of the code that accomplishes #1.1
+
+print "Now creating street_segment.txt. And..."
+
+finalize.prep_street_segments(working_path, final_path)
+
+print "We're good!"
+
+#this will be the section of the code that accomplishes #1.2
+
+#this will be the section of the code that accomplishes #1.3
+
 #this will be the section of the code that accomplishes #2
 #this is the section of the code that accomplishes #3
 
