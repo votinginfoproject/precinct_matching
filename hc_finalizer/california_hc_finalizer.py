@@ -58,15 +58,46 @@ print "All the necessary directories appear to be in good working order. Mazel t
 
 print "Now creating street_segment.txt. And..."
 
-finalize.prep_street_segments(working_path, final_path)
+segment_header = "start_house_number,end_house_number,odd_even_both,\
+start_apartment_number,end_apartment_number,non_house_address_house_number,\
+non_house_address_house_number_prefix,non_house_address_house_number_suffix,\
+non_house_address_street_direction,non_house_address_street_name,\
+non_house_address_street_suffix,non_house_address_address_direction,\
+non_house_address_apartment,non_house_address_city,non_house_address_state,\
+non_house_address_zip,precinct_id,precinct_split_id,id"
 
-print "We're good!"
+finalize.transform_xls(working_path, final_path, segment_header, "street_segment")
+
+print "-We're good!"
 
 #this will be the section of the code that accomplishes #1.2
 
+print "Now creating precinct.txt. And..."
+
+precinct_header = "name,number,locality_id,ward,mail_only,ballot_style_image_url,id"
+
+finalize.transform_xls(working_path, final_path, precinct_header, "precinct")
+
+print "-Boom!"
+
 #this will be the section of the code that accomplishes #1.3
 
+print "Now creating polling_location.txt. And..."
+
+polling_loc_header = "address_location_name,address_line1,address_line2,address_line3,address_city,address_state,address_zip,directions,polling_hours,photo_url,id"
+
+finalize.transform_xls(working_path, final_path, polling_loc_header, "polling_location")
+
+print "-It's set!"
+
 #this will be the section of the code that accomplishes #2
+
+print "Now creating precinct_polling_location.txt. And..."
+
+finalize.make_precinct_polling_loc()
+
+print "-Achievment unlocked!!"
+
 #this is the section of the code that accomplishes #3
 
 print "Now creating state.txt. And..."

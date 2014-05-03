@@ -226,59 +226,70 @@ def make_locality_ev(final_path):
 
 	paste(local_ev_end_loc, locality_ev_site_full)
 
-def prep_precincts():
-	"this makes the precincts.txt file."
-
-
-
-def prep_polling_locs():
-	"this makes the polling locations.txt file."
-
-
-def prep_street_segments(working_path, final_path):
+def transform_xls(working_path, final_path, header, content_type):
+	"this searches a .xlsx for a specified set of headers, and then obtains"
+	"all the data contained in those headers, correctly ordered."
 
 	import xlrd
+	import sys
 
-	header = "start_house_number,end_house_number,odd_even_both,\
-start_apartment_number,end_apartment_number,non_house_address_house_number,\
-non_house_address_house_number_prefix,non_house_address_house_number_suffix,\
-non_house_address_street_direction,non_house_address_street_name,\
-non_house_address_street_suffix,non_house_address_address_direction,\
-non_house_address_apartment,non_house_address_city,non_house_address_state,\
-non_house_address_zip,precinct_id,precinct_split_id,id"
+	content_type = content_type + "_working.xlsx"
+	final_content_name = content_type + ".txt"
+	source_header = []
+	master_index = []
+	final_content = header #final_content will get expanded later, but it has to start with the header
 
-	content_type = "street_segment_working.xls"
-	final_content_name = "street_segment.txt"
+	starting_spreadsheet_loc = working_path + content_type
+	end_spreadsheet_loc = final_path + final_content_name
 
-	starting_segment_loc = working_path + content_type
-
-	data = xlrd.open_workbook(starting_segment_loc).sheet_by_index(0)
-
-	#TODO: magic!
-
-	distinct_header = 
-
-	for row in range(1, data.nrows):
+	source_data = xlrd.open_workbook(starting_spreadsheet_loc).sheet_by_index(0)
 
 
-
-	segment_working = copy(working_path, content_type)
-	segment_working_header = segment_working.partition("\n")[0]
-
-	san_check(segment_working, segment_working_header, content_type)
- 	
-	
-	#this needs to:
-	#open a street segments file
-	#turn it into text
-	#san check it, to make sure we're using good data to start with
-	#break it down into columns
-	#identify a selection of that file that matches our predicted columns
-	#repackage it into a file we can use
-	#export that file as street_segment.txt
+	source_header_row = source_data.row(0)
+	for item in source_header_row:
+		item_index = source_header_row.index(item)
+		source_header.append(str(source_data.cell(0, item_index).value))
 
 
+	header_split = header.split(",")
 
+	for element in header_split:
+
+		if element not in source_header:
+			print "It looks like \"" + element + "\" is missing from the source file. Try fixing this."
+			sys.exit()
+		else:
+			element_pos = header_split.index(element)
+			element_source_pos = source_header.index(element)
+			master_index.append([element, element_pos, element_source_pos])
+
+	for row in range(1, source_data.nrows):
+
+		working_row = source_data.row(row)
+
+		transformed_row = ""
+
+		for needed_element in range(0, len(master_index)):
+			needed_value = source_data.cell(row,master_index[needed_element][2]).value
+			try:
+				if str(int(needed_value)) == str(needed_value).replace(".0",""):
+					transformed_row = transformed_row + "," + str(int(needed_value))
+				else:
+					transformed_row = transformed_row + "," + str(needed_value)
+			except ValueError:
+				transformed_row = transformed_row + "," + str(needed_value)
+
+		transformed_row = transformed_row.strip(",").replace(".0","") #excel naturally adds ".0" to integers for precision. we don't like that shit.
+
+
+		final_content = final_content + "\n" + transformed_row
+
+		san_check(final_content, header, final_content_name)
+
+		paste(end_spreadsheet_loc, final_content)
+
+def make_precinct_polling_loc():
+	print "wheeeeeeeeeeeeeeeeeeeeeeeeeeeee"
 
 def san_check(data, header, filename):
 	"these are two basic tests to make sure that the text to be copied is formatted correctly. More can be added."
@@ -293,8 +304,8 @@ def san_check(data, header, filename):
 		if line.count(",") != testing_data[testing_data.index(line) + 1].count(","):
 			print filename + " seems to have an incorrect number of columns in row " + str(testing_data.index(line) + 2) + ". You should fix this."
 			print "There are " + str(line.count(",") + 1) + " columns in row " + str(testing_data.index(line) + 1) + " and " + str(testing_data[testing_data.index(line) + 1].count(",") + 1) + " columns in row " + str(testing_data.index(line) + 2) + "."
-			print line
-			print testing_data[testing_data.index(line) + 1]
+			print [line]
+			print [testing_data[testing_data.index(line) + 1]]
 			sys.exit()
 
 	if testing_data[0] != header:
