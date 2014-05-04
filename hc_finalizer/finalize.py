@@ -1,4 +1,4 @@
-#this is the main compendium of individual functions that support hc_finalizer.py (currently california_hc_finalizer.py)
+#this is the compendium of individual functions that support hc_finalizer.py (currently california_hc_finalizer.py)
 #state id = 1
 #election_administration id = 2 (for the state office), 3 (for the local office)
 #locality id = 4
@@ -233,13 +233,13 @@ def transform_xls(working_path, final_path, header, content_type):
 	import xlrd
 	import sys
 
-	content_type = content_type + "_working.xlsx"
+	working_content_type = content_type + "_working.xlsx"
 	final_content_name = content_type + ".txt"
 	source_header = []
 	master_index = []
 	final_content = header #final_content will get expanded later, but it has to start with the header
 
-	starting_spreadsheet_loc = working_path + content_type
+	starting_spreadsheet_loc = working_path + working_content_type
 	end_spreadsheet_loc = final_path + final_content_name
 
 	source_data = xlrd.open_workbook(starting_spreadsheet_loc).sheet_by_index(0)
@@ -287,9 +287,6 @@ def transform_xls(working_path, final_path, header, content_type):
 		san_check(final_content, header, final_content_name)
 
 		paste(end_spreadsheet_loc, final_content)
-
-def make_precinct_polling_loc():
-	print "wheeeeeeeeeeeeeeeeeeeeeeeeeeeee"
 
 def san_check(data, header, filename):
 	"these are two basic tests to make sure that the text to be copied is formatted correctly. More can be added."

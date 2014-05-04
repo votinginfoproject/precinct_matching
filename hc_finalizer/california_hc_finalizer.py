@@ -22,12 +22,18 @@ import sys
 
 print "_________________________________"
 
-#TODO: make locality_name an inputted variable
 #TODO: make state folder name an inputted variable
 #TODO: make the base string of state_path flexible to different configs
-#TODO: find a better source of locality type
 
-locality_name = "Lake County"
+locality_name = raw_input("Please tell me the locality I should be looking for. ")
+
+#TODO: write in the remaining types of locality
+
+locality_type_check = locality_name.split(" ")[-1]
+if locality_type_check.lower() == "county":
+	locality_type = "county"
+else:
+	locality_type = raw_input("Please tell me the type of locality this is. ")
 locality_type = "county"
 state_folder = "california primary"
 
@@ -53,6 +59,28 @@ elif not os.access(final_path, os.F_OK):
 	sys.exit()
 
 print "All the necessary directories appear to be in good working order. Mazel tov! Now, the fun part."
+
+#this will be the section of the code that accomplishes #2
+#This runs before #1 because we need to use #1 to overwrite the bad precinct.txt that this creates.
+#TODO: give precinct_polling_loc its own function that doesn't require that overwriting.
+
+print "Now creating precinct_polling_location.txt. And..."
+
+precinct_polling_loc_header = "id,polling_location_id"
+
+finalize.transform_xls(working_path, final_path, precinct_polling_loc_header, "precinct")
+
+precinct_polling_loc_loc = final_path + "precinct.txt"
+
+precint_polling_loc_temp = open(precinct_polling_loc_loc, "r").read()
+
+precinct_polling_loc_loc = final_path + "precinct_polling_location.txt"
+
+precint_polling_loc_temp = precint_polling_loc_temp.replace("id,","precinct_id")
+
+finalize.paste(precinct_polling_loc_loc, precint_polling_loc_temp)
+
+print "-Achievement unlocked!"
 
 #this will be the section of the code that accomplishes #1.1
 
@@ -89,14 +117,6 @@ polling_loc_header = "address_location_name,address_line1,address_line2,address_
 finalize.transform_xls(working_path, final_path, polling_loc_header, "polling_location")
 
 print "-It's set!"
-
-#this will be the section of the code that accomplishes #2
-
-print "Now creating precinct_polling_location.txt. And..."
-
-finalize.make_precinct_polling_loc()
-
-print "-Achievment unlocked!!"
 
 #this is the section of the code that accomplishes #3
 
