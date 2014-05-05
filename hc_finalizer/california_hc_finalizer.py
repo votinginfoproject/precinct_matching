@@ -25,9 +25,10 @@ print "_________________________________"
 #TODO: make state folder name an inputted variable
 #TODO: make the base string of state_path flexible to different configs
 
-locality_name = raw_input("Please tell me the locality I should be looking for. ")
+locality_name = raw_input("Please tell me the locality we're working on. ")
 
 #TODO: write in the remaining types of locality
+#TODO: make state_id intelligently determined
 
 locality_type_check = locality_name.split(" ")[-1]
 if locality_type_check.lower() == "county":
@@ -62,7 +63,10 @@ print "All the necessary directories appear to be in good working order. Mazel t
 
 #this will be the section of the code that accomplishes #2
 #This runs before #1 because we need to use #1 to overwrite the bad precinct.txt that this creates.
+
+
 #TODO: give precinct_polling_loc its own function that doesn't require that overwriting.
+#TODO: make precinct_polling_loc able to handle precincts with multiple polling places.
 
 print "Now creating precinct_polling_location.txt. And..."
 
