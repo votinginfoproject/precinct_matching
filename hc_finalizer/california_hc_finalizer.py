@@ -25,7 +25,10 @@ print "_________________________________"
 #TODO: make state folder name an inputted variable
 #TODO: make the base string of state_path flexible to different configs
 
-locality_name = raw_input("Please tell me the locality we're working on. ")
+locality = raw_input("Please tell me the locality we're working on. ")
+locality = "lake county 033"
+locality_name = " ".join(locality.split(" ")[0:-1])
+print locality_name
 
 #TODO: write in the remaining types of locality
 #TODO: make state_id intelligently determined
@@ -35,12 +38,12 @@ if locality_type_check.lower() == "county":
 	locality_type = "county"
 else:
 	locality_type = raw_input("Please tell me the type of locality this is. ")
-locality_type = "county"
 state_folder = "california primary"
+locality_fips = locality.split(" ")[-1]
 
 state_path = "c:/users/paul kominers/google drive/vip/hand-collected data/" + state_folder + "/"
-working_path = state_path + locality_name + "/working data/"
-final_path = state_path + locality_name + "/final data/"
+working_path = state_path + locality + "/working data/"
+final_path = state_path + locality + "/final data/"
 
 
 
@@ -59,7 +62,7 @@ elif not os.access(final_path, os.F_OK):
 	print "final_path: " + final_path
 	sys.exit()
 
-print "All the necessary directories appear to be in good working order. Mazel tov! Now, the fun part."
+print "-All the necessary directories appear to be in good working order. Mazel tov! Now, the fun part."
 
 #this will be the section of the code that accomplishes #2
 #This runs before #1 because we need to use #1 to overwrite the bad precinct.txt that this creates.
@@ -68,27 +71,15 @@ print "All the necessary directories appear to be in good working order. Mazel t
 #TODO: give precinct_polling_loc its own function that doesn't require that overwriting.
 #TODO: make precinct_polling_loc able to handle precincts with multiple polling places.
 
-print "Now creating precinct_polling_location.txt. And..."
+print "-Now creating precinct_polling_location.txt. And..."
 
-precinct_polling_loc_header = "id,polling_location_id"
-
-finalize.transform_xls(working_path, final_path, precinct_polling_loc_header, "precinct")
-
-precinct_polling_loc_loc = final_path + "precinct.txt"
-
-precint_polling_loc_temp = open(precinct_polling_loc_loc, "r").read()
-
-precinct_polling_loc_loc = final_path + "precinct_polling_location.txt"
-
-precint_polling_loc_temp = precint_polling_loc_temp.replace("id,","precinct_id")
-
-finalize.paste(precinct_polling_loc_loc, precint_polling_loc_temp)
+finalize.make_precinct_polling_loc(working_path, final_path)
 
 print "-Achievement unlocked!"
 
 #this will be the section of the code that accomplishes #1.1
 
-print "Now creating street_segment.txt. And..."
+print "-Now creating street_segment.txt. And..."
 
 segment_header = "start_house_number,end_house_number,odd_even_both,\
 start_apartment_number,end_apartment_number,non_house_address_house_number,\
@@ -104,7 +95,7 @@ print "-We're good!"
 
 #this will be the section of the code that accomplishes #1.2
 
-print "Now creating precinct.txt. And..."
+print "-Now creating precinct.txt. And..."
 
 precinct_header = "name,number,locality_id,ward,mail_only,ballot_style_image_url,id"
 
@@ -114,7 +105,7 @@ print "-Boom!"
 
 #this will be the section of the code that accomplishes #1.3
 
-print "Now creating polling_location.txt. And..."
+print "-Now creating polling_location.txt. And..."
 
 polling_loc_header = "address_location_name,address_line1,address_line2,address_line3,address_city,address_state,address_zip,directions,polling_hours,photo_url,id"
 
@@ -124,7 +115,7 @@ print "-It's set!"
 
 #this is the section of the code that accomplishes #3
 
-print "Now creating state.txt. And..."
+print "-Now creating state.txt. And..."
 
 state_header = "name,election_administration_id,id"
 state_name = state_folder.split()[0].title()
@@ -135,7 +126,7 @@ print "-Victory!"
 
 #this is the section of the code that accomplishes #4
 
-print "Now copying election.txt. And..."
+print "-Now copying election.txt. And..."
 
 election_header = "date,election_type,state_id,statewide,registration_info,absentee_ballot_info,results_url,polling_hours,election_day_registration,registration_deadline,absentee_request_deadline,id"
 
@@ -145,7 +136,7 @@ print "-Success!"
 
 #this is the section of the code that accomplishes #5
 
-print "Now making source.txt. And..."
+print "-Now making source.txt. And..."
 
 finalize.make_source(final_path)
 
@@ -153,26 +144,27 @@ print "-It's done!"
 
 #this will be the section of the code that accomplishes #6
 
-print "Now making election_administration.txt. And..."
+print "-Now making election_administration.txt. And..."
 
-finalize.make_election_admins(state_name, locality_name, state_path, final_path)
+finalize.make_election_admins(state_name, locality_name, locality_fips, state_path, final_path)
 
 print "-Glory is ours!"
 
 #this will be the section of the code that accomplishes #7
 
-print "Now trying to make early_vote_site.txt. And..."
+print "-Now trying to make early_vote_site.txt. And..."
 
 if not os.access(working_path + "early_vote_site.txt", os.F_OK):
-	print "There appears to be no early_vote_site file. If this is in error, please add it and re-run."
+	print "-There appears to be no early_vote_site file. If this is in error, please add it and re-run."
 else:
-	finalize.make_ev_sites(working_path, final_path)
+	finalize.transform_xls(working_path, final_path, early_vote_site_header, "early_vote_site")
+	finalize.make_locality_ev(final_path, locality_fips)
 	print "-Great justice!"
 
 #this will be the section of the code that accomplishes #8
 
-print "Now making locality.txt. And..."
+print "-Now making locality.txt. And..."
 
-finalize.make_locality(locality_name, locality_type, final_path)
+finalize.make_locality(locality_name, locality_fips, locality_type, final_path)
 
 print "-Alakazam!"
