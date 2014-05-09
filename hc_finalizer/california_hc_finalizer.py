@@ -26,7 +26,6 @@ print "_________________________________"
 #TODO: make the base string of state_path flexible to different configs
 
 locality = raw_input("Please tell me the locality we're working on. ")
-locality = "lake county 033"
 locality_name = " ".join(locality.split(" ")[0:-1])
 print locality_name
 
@@ -64,12 +63,27 @@ elif not os.access(final_path, os.F_OK):
 
 print "-All the necessary directories appear to be in good working order. Mazel tov! Now, the fun part."
 
+#this will be the section of the code that accomplishes #1.2
+print "-Now creating precinct.txt. And..."
+
+precinct_header = "name,number,locality_id,ward,mail_only,ballot_style_image_url,id"
+
+finalize.transform_xls(working_path, final_path, precinct_header, "precinct")
+
+print "-Boom!"
+
+#this will be the section of the code that accomplishes #1.3
+
+print "-Now creating polling_location.txt. And..."
+
+polling_loc_header = "address_location_name,address_line1,address_line2,address_line3,address_city,address_state,address_zip,directions,polling_hours,photo_url,id"
+
+finalize.transform_xls(working_path, final_path, polling_loc_header, "polling_location")
+
+print "-It's set!"
+
 #this will be the section of the code that accomplishes #2
-#This runs before #1 because we need to use #1 to overwrite the bad precinct.txt that this creates.
 
-
-#TODO: give precinct_polling_loc its own function that doesn't require that overwriting.
-#TODO: make precinct_polling_loc able to handle precincts with multiple polling places.
 
 print "-Now creating precinct_polling_location.txt. And..."
 
@@ -92,26 +106,6 @@ non_house_address_zip,precinct_id,precinct_split_id,id"
 finalize.transform_xls(working_path, final_path, segment_header, "street_segment")
 
 print "-We're good!"
-
-#this will be the section of the code that accomplishes #1.2
-
-print "-Now creating precinct.txt. And..."
-
-precinct_header = "name,number,locality_id,ward,mail_only,ballot_style_image_url,id"
-
-finalize.transform_xls(working_path, final_path, precinct_header, "precinct")
-
-print "-Boom!"
-
-#this will be the section of the code that accomplishes #1.3
-
-print "-Now creating polling_location.txt. And..."
-
-polling_loc_header = "address_location_name,address_line1,address_line2,address_line3,address_city,address_state,address_zip,directions,polling_hours,photo_url,id"
-
-finalize.transform_xls(working_path, final_path, polling_loc_header, "polling_location")
-
-print "-It's set!"
 
 #this is the section of the code that accomplishes #3
 
@@ -152,9 +146,12 @@ print "-Glory is ours!"
 
 #this will be the section of the code that accomplishes #7
 
+early_vote_site_header = "name,address_location_name,address_line1,address_line2,address_line3,address_city,address_state\
+,address_zip,directions,voter_services,start_date,end_date,days_times_open,id"
+
 print "-Now trying to make early_vote_site.txt. And..."
 
-if not os.access(working_path + "early_vote_site.txt", os.F_OK):
+if not os.access(working_path + "early_vote_site_working.xlsx", os.F_OK):
 	print "-There appears to be no early_vote_site file. If this is in error, please add it and re-run."
 else:
 	finalize.transform_xls(working_path, final_path, early_vote_site_header, "early_vote_site")

@@ -86,9 +86,8 @@ def make_locality(locality_name, fips, locality_type, final_path):
 	header = "name,state_id,type,election_administration_id,id"
 
 	state_id = "1"
-	election_administration_id = "3"
 	locality_id = fips
-
+	election_administration_id = "66" + locality_id
 
 
 	locality_data = ",".join([locality_name,state_id,locality_type,election_administration_id,locality_id])
@@ -160,6 +159,8 @@ def make_precinct_polling_loc(working_path, final_path):
 			for polling_loc_id in decomposed_row[1:len(decomposed_row)]:
 				transformed_row = transformed_row + "\n" + decomposed_row[0].strip() + "," + polling_loc_id.strip()
 			transformed_row = transformed_row.strip("\n")
+		elif transformed_row.count(",") == 0:
+			continue
 
 
 		final_content = final_content + "\n" + transformed_row
@@ -202,7 +203,7 @@ where_do_i_vote_url,what_is_on_my_ballot_url,rules_url,voter_services,hours,id"
 
 	clerk_re = re.compile("\n.+?" + locality_name_short.title() + ".+?\n")
 
-	office_name_re = re.compile("([A-Za-z ]+)[,-].*?\d|.*?\d.*?[,-]([A-Za-z ]+)")
+	office_name_re = re.compile("(\t[^\d]+)[,-].*?\d|.*?\d.*?[,-]([^\d]+)\t")
 
 	clerk = clerk_re.findall(admin)[0].strip("\n").split("\t")
 
@@ -210,22 +211,34 @@ where_do_i_vote_url,what_is_on_my_ballot_url,rules_url,voter_services,hours,id"
 	hours = clerk[33]
 
 
-	street_1 = clerk[5]
+	street = clerk[5].strip("\"") #the strip catches something in the source data--I'm not sure where it's coming from and don't have time to fix tonight
 	city = clerk [6]
 	state = clerk[7]
 	street_zip = clerk[8]
 
 
-	if office_name_re.findall(street_1):
-		if office_name_re.findall(street_1)[0][0]:
+	if office_name_re.findall(street):
+		if office_name_re.findall(street)[0][0]:
 			office_name = office_name_re.findall(street_1)[0][0].strip()
-		elif office_name_re.findall(street_1)[0][1]:
+		elif office_name_re.findall(street)[0][1]:
 			office_name = office_name_re.findall(street_1)[0][1].strip()
 		
-		street_1 = street_1.replace(office_name,"").strip(", ")
+		street = street.replace(office_name,"").strip(", ")
 	else:
 		office_name = ""
 
+	street_components = street.split(",")
+	street_1 = street_components[0]
+	if len(street_components) == 2:
+		street_2 = street_components[1]
+		street_3 = ""
+	elif len(street_components) == 3:
+		street_2 = street_components[1]
+		street_3 = street_components[2]
+	else:
+		street_2 = ""
+		street_3 = ""
+		
 	if clerk[9]:
 		mail_street_1 = clerk[9]
 		mail_city = clerk[10]
@@ -237,7 +250,7 @@ where_do_i_vote_url,what_is_on_my_ballot_url,rules_url,voter_services,hours,id"
 		mail_state = ""
 		mail_zip = ""
 
-	address = ",".join([office_name, street_1, "", "", city, state, street_zip])
+	address = ",".join([office_name, street_1, street_2, street_3, city, state, street_zip])
 	mailing_address = ",".join(["", mail_street_1, "", "", mail_city, mail_state, mail_zip])
 
 
@@ -247,7 +260,7 @@ where_do_i_vote_url,what_is_on_my_ballot_url,rules_url,voter_services,hours,id"
 
 	url_list = url_line_re.findall(urls)[0]
 
-	local_election_admin = ",".join([name, "", "", address, mailing_address, url_list, "", hours, fips])
+	local_election_admin = ",".join([name, "", "", address, mailing_address, url_list, "", hours, "66" + fips])
 
 	election_admin_full = state_election_admin_header + "\n" + local_election_admin
 
