@@ -1,5 +1,5 @@
 #this is the compendium of individual functions that support hc_finalizer.py (currently california_hc_finalizer.py)
-#state id = 1
+#state id = 06 (hard-coded for CA, should be done better later)
 #election_administration id = 2 (for the state office), 3 (for the local office)
 #vip id = 0
 #source id = 10000867380 (867380 is VIP in dec)
@@ -45,7 +45,7 @@ def make_state(final_path, state_name, header):
 	#Since we will only ever have one state-level election administrator associated with 
 	#a given hand-matched feed, we can match election_administration_id based on a fixed ID.
 	election_administration_id = "2"
-	state_id = "1"
+	state_id = "06"
 
 	state_data = ",".join([name,election_administration_id,state_id])
 	state_full = header + "\n" + state_data
@@ -85,7 +85,7 @@ def make_locality(locality_name, fips, locality_type, final_path):
 
 	header = "name,state_id,type,election_administration_id,id"
 
-	state_id = "1"
+	state_id = "06"
 	locality_id = fips
 	election_administration_id = "66" + locality_id
 
