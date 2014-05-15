@@ -50,7 +50,7 @@ def make_state(final_path, state_name, header):
 	state_data = ",".join([name,election_administration_id,state_id])
 	state_full = header + "\n" + state_data
 
-	san_check(state_full, header, "state.txt")
+	san_check(state_full, header, "state.txt", "yes")
 
 	state = open(state_end_loc, "w")
 	state.write(state_full)
@@ -74,7 +74,7 @@ def make_source(final_path):
 	source_data = ",".join([name,vip_id,datetime,description,organization_url,"","",source_id])
 	source_full = header + "\n" + source_data
 
-	san_check(source_full, header, "source.txt")
+	san_check(source_full, header, "source.txt", "yes")
 
 	paste(source_end_loc, source_full)
 
@@ -85,7 +85,7 @@ def make_locality(locality_name, fips, locality_type, final_path):
 
 	header = "name,state_id,type,election_administration_id,id"
 
-	state_id = "06"
+	state_id = "06 "
 	locality_id = fips
 	election_administration_id = "66" + locality_id
 
@@ -94,7 +94,7 @@ def make_locality(locality_name, fips, locality_type, final_path):
 
 	locality_full = header + "\n" + locality_data
 
-	san_check(locality_full, header, "locality.txt")
+	san_check(locality_full, header, "locality.txt", "yes")
 
 	locality = open(locality_end_loc, "w+")
 	locality.write(locality_full)
@@ -264,26 +264,9 @@ where_do_i_vote_url,what_is_on_my_ballot_url,rules_url,voter_services,hours,id"
 
 	election_admin_full = state_election_admin_header + "\n" + local_election_admin
 
-	san_check(election_admin_full, header, content_type)
+	san_check(election_admin_full, header, content_type, "yes")
 
 	paste(election_admin_end_loc, election_admin_full)
-
-
-# def make_ev_sites(working_path, final_path, fips):
-# 	"this makes the early_vote.txt file."
-# 	#TODO: this won't work at all. roll this over to transform_xls when you need to.
-
-# 	content_type = "early_vote_site.txt"
-# 	ev_path = working_path + content_type
-# 	paste_path = final_path + content_type
-
-# 	header = "name,address_location_name,address_line1,address_line2,address_line3,address_city,address_state,address_zip,directions,voter_services,start_date,end_date,days_times_open,id"
-
-# 	copy_paste(working_path, final_path, header, content_type)
-
-# 	#TODO: validate EV sites on construction of date/time variables
-
-# 	make_locality_ev(final_path, fips)
 
 
 def make_locality_ev(final_path, fips):
@@ -310,7 +293,7 @@ def make_locality_ev(final_path, fips):
 		ev_site_id = ev_site.split(",").pop()
 		locality_ev_site_full = locality_ev_site_full + "\n" + fips + "," + ev_site_id
 
-	san_check(locality_ev_site_full, header, "locality_early_vote_site.txt")
+	san_check(locality_ev_site_full, header, "locality_early_vote_site.txt", "yes")
 
 	paste(local_ev_end_loc, locality_ev_site_full)
 
@@ -380,27 +363,18 @@ def transform_xls(working_path, final_path, header, content_type):
 
 	print "Sanity checking now."
 
-	san_check(final_content, header, final_content_name)
+	san_check(final_content, header, final_content_name, "yes")
 
 	paste(end_spreadsheet_loc, final_content)
 
-def san_check(data, header, filename):
-	"these are two basic tests to make sure that the text to be copied is formatted correctly. More can be added."
-	"the first ensures that every line in the data has the same number of columns."
-	"the second ensures that the header matches the expected header."
-
+def san_check(data, header, filename, id_check = ""):
+	"these are some basic tests to make sure that the text to be copied is formatted correctly. More can be added."
+	
 	import sys
 
 	testing_data = data.split("\n")
 
-	for line in testing_data[0:len(testing_data)-1]:
-		if line.count(",") != testing_data[testing_data.index(line) + 1].count(","):
-			print filename + " seems to have an incorrect number of columns in row " + str(testing_data.index(line) + 2) + ". You should fix this."
-			print "There are " + str(line.count(",") + 1) + " columns in row " + str(testing_data.index(line) + 1) + " and " + str(testing_data[testing_data.index(line) + 1].count(",") + 1) + " columns in row " + str(testing_data.index(line) + 2) + "."
-			print [line]
-			print [testing_data[testing_data.index(line) + 1]]
-			sys.exit()
-
+	"this  ensures that the header matches the expected header."
 	if testing_data[0] != header:
 		print "It looks like " + filename +  " has the wrong headers. You need to fix this."
 		print "Here's the header:"
@@ -408,3 +382,49 @@ def san_check(data, header, filename):
 		print "Here's what you've said it should be:"
 		print header
 		sys.exit()
+
+	"this test ensures that every line in the data has the same number of columns."
+	
+
+
+	ids = []
+
+	for line in testing_data[0:len(testing_data)-1]:
+		next_line = testing_data[testing_data.index(line) + 1]
+		if line.count(",") != next_line.count(","):
+			print filename + " seems to have an incorrect number of columns in row " + str(testing_data.index(line) + 2) + ". You should fix this."
+			print "There are " + str(line.count(",") + 1) + " columns in row " + str(testing_data.index(line) + 1) + " and " + str(testing_data[testing_data.index(line) + 1].count(",") + 1) + " columns in row " + str(testing_data.index(line) + 2) + "."
+			print [line]
+			print [testing_data[testing_data.index(line) + 1]]
+			sys.exit()
+
+
+	"this test ensures that no two lines are identical other than their IDs, and collects a list of IDs to be used for another test."
+
+	testing_data.sort()
+
+	for line in testing_data[0:len(testing_data)-1]:
+		next_line = testing_data[testing_data.index(line) + 1]
+		line_test = line.split(",")
+		line_id = line_test.pop()
+		ids.append(line_id)
+
+		next_line_test = next_line.split(",")
+		next_line_id = next_line_test.pop()
+
+		if line_test == next_line_test:
+			print filename + "seems to have two identical lines. you should fix this. They look like:"
+			print [line_test]
+			sys.exit()
+
+	"if an ID column exists, this checks that no ID is duplicated within the particular data being checked."
+
+	if id_check:
+
+		ids.append(next_line_id)
+		ids.sort()
+		
+		for id_test in ids[0:len(ids) - 1]:
+			if id_test == ids[ids.index(id_test) + 1]:
+				print id_test + " seems to be duplicated in " + filename + ". You should fix this."
+				sys.exit()

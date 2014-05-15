@@ -56,10 +56,16 @@ elif not os.access(working_path, os.F_OK):
 	print "The working data folder path appears to be incorrect. Please make sure the directories are appropriately configured."
 	print "working_path: " + working_path
 	sys.exit()
+	sys.exit()
 elif not os.access(final_path, os.F_OK):
 	print "The final data folder path appears to be incorrect. Please make sure the directories are appropriately configured."
 	print "final_path: " + final_path
 	sys.exit()
+if not os.access(working_path + "polling_location_working.xlsx", os.F_OK):
+	raw_input("There is no polling location file. If this is incorrect, please exit now. Otherwise, press \"enter\" to contnue.")
+	polling_loc_exists = ""
+else:
+	polling_loc_exists = "TRUE"
 
 print "-All the necessary directories appear to be in good working order. Mazel tov! Now, the fun part."
 
@@ -74,22 +80,24 @@ print "-Boom!"
 
 #this will be the section of the code that accomplishes #1.3
 
-print "-Now creating polling_location.txt. And..."
+if polling_loc_exists:
 
-polling_loc_header = "address_location_name,address_line1,address_line2,address_line3,address_city,address_state,address_zip,directions,polling_hours,photo_url,id"
+	print "-Now creating polling_location.txt. And..."
 
-finalize.transform_xls(working_path, final_path, polling_loc_header, "polling_location")
+	polling_loc_header = "address_location_name,address_line1,address_line2,address_line3,address_city,address_state,address_zip,directions,polling_hours,photo_url,id"
 
-print "-It's set!"
+	finalize.transform_xls(working_path, final_path, polling_loc_header, "polling_location")
+
+	print "-It's set!"
 
 #this will be the section of the code that accomplishes #2
 
+if polling_loc_exists:
+	print "-Now creating precinct_polling_location.txt. And..."
 
-print "-Now creating precinct_polling_location.txt. And..."
+	finalize.make_precinct_polling_loc(working_path, final_path)
 
-finalize.make_precinct_polling_loc(working_path, final_path)
-
-print "-Achievement unlocked!"
+	print "-Achievement unlocked!"
 
 #this will be the section of the code that accomplishes #1.1
 
