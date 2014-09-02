@@ -4,7 +4,7 @@
 #locality.txt and state.txt, all in [State]/[Locality]/Final_Data, as well as early_vote_site.txt (if it exists)
 #to do this, we need to:
 #1.1,1.2,1.3. clean and translate street_segment.xls, precinct.xls, and polling_location.xls
-#(This is mostly a straight transfer, with some rows being ommitted.)
+#(This is mostly a straight transfer, with some rows being omitted.)
 #2. construct precinct_polling_location out of precinct.xls and polling_location.xls
 #3. construct state.txt from (DONE!)
 #4. Constuct an election.txt file (DONE!)
@@ -62,7 +62,7 @@ elif not os.access(final_path, os.F_OK):
 	print "final_path: " + final_path
 	sys.exit()
 if not os.access(working_path + "polling_location_working.xlsx", os.F_OK):
-	raw_input("There is no polling location file. If this is incorrect, please exit now. Otherwise, press \"enter\" to contnue.")
+	raw_input("There is no polling location file. If this is incorrect, please exit now. Otherwise, press \"enter\" to continue.")
 	polling_loc_exists = ""
 else:
 	polling_loc_exists = "TRUE"
